@@ -1,77 +1,133 @@
-<h1 align="center">MCP Router</h1>
-<h3 align="center">A Unified MCP Server Management App</h3>
+# mcp-router
 
-<div align="center">
+> A cross-platform desktop app for managing MCP servers with local-first configuration and observability-friendly operations.
+> Status: `maintenance`
 
-[![GitHub stars](https://img.shields.io/github/stars/mcp-router/mcp-router?style=flat&logo=github&label=Star)](https://github.com/mcp-router/mcp-router)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=flat&logo=discord)](https://discord.com/invite/dwG9jPrhxB)
-[![X](https://img.shields.io/badge/X(Twitter)-@mcp__router-1DA1F2?style=flat&logo=x)](https://twitter.com/mcp_router)
+![CI](https://img.shields.io/github/actions/workflow/status/zachyzissou/mcp-router/.github/workflows/baseline-ts-ci.yml)
+![License](https://img.shields.io/github/license/zachyzissou/mcp-router)
+![Security](https://img.shields.io/badge/security-SECURITY.md-green)
 
-[English | [日本語](https://github.com/mcp-router/mcp-router/blob/main/README_ja.md)]
+## Overview
+MCP Router helps users add, configure, and monitor local or remote MCP servers in one place.
+This repository contains the app shell, shared packages, and electron runtime integration used to interact with desktop MCP workflows.
 
-</div>
+## Problem / Value
+- **Problem:** MCP server configuration can become fragmented across clients and manual scripts.
+- **Value:** Consolidates configuration, import/export, and operational visibility in a single workspace.
+- **Users:** Desktop users managing MCP-based integrations for AI tooling.
 
-## 🎯 Overview
+```text
+UI Dashboard --> MCP Registry --> Worker Orchestrator --> Local Stores
+                         \--> Telemetry/Logs --> Health checks
+```
 
-**MCP Router** is a desktop application for simplifies the management of Model Context Protocol (MCP) servers.
+## Features
+- ✅ Cross-platform desktop package setup and shared server abstractions.
+- ✅ Universal MCP server add/connect workflows.
+- ✅ Import/export and persistence of configuration data.
+- ⏳ Add hardening checklist for release pipeline and runtime hardening.
 
-### ✨ Key Features
-- 🌐 **Universal** - Connect to any MCP server
-  - Remote or local servers
-  - Supports DXT, JSON, Manual
-- 🖥️ **Cross-platform** - Available for Windows and macOS
-- 🔒 **Privacy** - All data is stored locally on your device
-- ⬆️ **Data portability** - Easily export and import your mcp configurations
+## Tech Stack
+- Runtime: Node.js `>=20` (CI uses `22`) with Electron
+- Framework: TypeScript, Turborepo
+- Tooling: pnpm, Turborepo, ESLint, TypeScript
+- CI: GitHub Actions
+- Storage: Local filesystem / local DB (app-scoped)
 
-## 🔒 Privacy & Security
+## Prerequisites
+- Node.js >= 20 and pnpm >= 8
+- Git
+- Platform-specific Electron build tooling when producing installers
 
-### Your Data Stays Local
-- ✅ **All data is stored locally** - Request logs, configurations, and server data remain on your device
-- ✅ **Credentials are secure** - API keys and authentication credentials are stored locally and never transmitted externally
-- ✅ **Complete control** - You have full control over your MCP server connections and data
+## Installation
+```bash
+# clone repo
+git clone https://github.com/zachyzissou/mcp-router.git
+cd mcp-router
 
-### Transparency
-- 🔍 **Auditable** - The desktop application source code is publicly available on GitHub
-- 🛡️ **Verifiable privacy** - You can verify that your data stays local by examining the application code
-- 🤝 **Community-driven** - Security improvements and audits are welcomed from the [community](https://discord.com/invite/dwG9jPrhxB)
+# install dependencies
+pnpm install
 
+# run dev workspace
+pnpm dev
+```
 
-## 📥 Installation
+## Configuration
+| Key | Required | Default | Notes |
+| --- | --- | --- | --- |
+| `NODE_ENV` | no | `development` | Local environment mode |
+| `APP_DATA_DIR` | no | app default | Override local app data directory |
+| `LOG_LEVEL` | no | `info` | Logger level for local diagnostics |
 
-Download from our [installation page](http://mcp-router.net/install) or [releases page](https://github.com/mcp-router/mcp-router/releases).
+## Usage
+```bash
+pnpm dev
+```
 
+```bash
+# optional production build
+pnpm build
+```
 
-## 🚀 Features
+## Testing & Quality
+```bash
+pnpm run lint
+pnpm run typecheck
+pnpm run build
+pnpm run test:e2e
+```
 
-### 📊 Centralized Server Management
-Easily toggle MCP servers on/off from a single dashboard
+- Current baseline gates now include lint/typecheck/build/test-if-present checks with script-presence guards.
+- Suggested quality target: maintain clean lint/typecheck signal on touched areas and keep workspace builds reproducible.
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/toggle.png" alt="Server Management" width="600">
+## Security
+- Report issues via `SECURITY.md`.
+- Never commit credentials or tokens.
+- Prefer secure storage for all local secret material.
+- Add Dependabot/CodeQL where feasible and keep branch protection enabled.
 
-### 🌐 Universal Connectivity
-Add and connect to any MCP server with support for both local and remote servers
+## Contributing
+1. Create a branch from `main`.
+2. Document assumptions and local verification steps in PR.
+3. Run baseline checks and include outputs.
+4. Seek review on CI and risk summary before merge.
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/add-mcp-manual.png" alt="Universal Connectivity" width="600">
+## Deployment / runbook
+- Deployment target: tagged release artifacts (installer workflows are externalized to existing app release path).
+- Rollback: revert release commit/tag and re-run pinned workspace installer build.
+- Emergency action: disable publish jobs, revert risky config changes, and reopen issue.
 
-### 🔗 One-Click Integration
-Seamlessly connect with popular AI tools like Claude, Cline, Windsurf, Cursor, or your custom client
+## Troubleshooting
+- Symptom: App fails to install dependencies
+  - Check Node/pnpm versions and run `pnpm install --frozen-lockfile`.
+- Symptom: Typecheck errors in monorepo
+  - Run `pnpm run typecheck` for local scope and inspect package-level cache artifacts.
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/token.png" alt="One-Click Integration" width="600">
+## Observability
+- Health target: app startup success and worker bootstrap logs.
+- Logs: local runtime logs and CI logs in GitHub Actions.
+- Alerts: repository issue tracker and maintainer inbox.
+- SLO: stable startup and clean typecheck/build on mainline changes.
 
-### 📈 Comprehensive Logging & Analytics
-Monitor and display detailed request logs
+## Roadmap
+- Q1: Baseline governance and security policy alignment.
+- Q2: Add reproducible packaging checks and release docs.
+- Q3: Add explicit observability and rollback runbook in release playbook.
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/stats.png" alt="Logs and Statistics" width="600">
+## Known Risks
+- Electron runtime dependency volatility.
+- Build output size may increase with workspace growth.
+- Branch divergence from upstream forks/repositories of MCP tooling.
 
+## Release Notes
+- `1.0.0`: baseline README + governance files and baseline CI workflow.
 
-## 🤝 Community
+## Changelog
+See `CHANGELOG.md` if present in the future.
 
-Join our community to get help, share ideas, and stay updated:
+## License
+See [LICENSE.md](LICENSE.md)
 
-- 💬 [Discord Community](https://discord.com/invite/dwG9jPrhxB)
-- 🐦 [Follow us on X (Twitter)](https://twitter.com/mcp_router)
-- ⭐ [Star us on GitHub](https://github.com/mcp-router/mcp-router)
-
-## 📝 License
-
-This project is licensed under the Sustainable Use License - see the [LICENSE.md](LICENSE.md) file for details.
+## Contact
+- Maintainer: `security@example.com`
+- Security contact: see [SECURITY.md](SECURITY.md)

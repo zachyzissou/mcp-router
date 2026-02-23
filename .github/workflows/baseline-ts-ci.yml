@@ -1,0 +1,56 @@
+name: baseline-ts-ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(!('lint' in s));"; then
+            pnpm run lint
+          else
+            echo "lint script missing, skipping"
+          fi
+      - name: Type check
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(!('typecheck' in s));"; then
+            pnpm run typecheck
+          else
+            echo "typecheck script missing, skipping"
+          fi
+      - name: Test
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(!('test' in s) && !('test:e2e' in s));"; then
+            if node -e "const s=require('./package.json').scripts||{}; process.exit(!('test' in s));"; then
+              pnpm run test
+            elif node -e "const s=require('./package.json').scripts||{}; process.exit(!('test:e2e' in s));"; then
+              pnpm run test:e2e
+            else
+              echo "No test scripts found, skipping"
+            fi
+          else
+            echo "No test scripts found, skipping"
+          fi
+      - name: Build
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(!('build' in s));"; then
+            pnpm run build
+          else
+            echo "build script missing, skipping"
+          fi
