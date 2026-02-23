@@ -36,14 +36,10 @@ jobs:
           fi
       - name: Test
         run: |
-          if node -e "const s=require('./package.json').scripts||{}; process.exit(!('test' in s) && !('test:e2e' in s));"; then
-            if node -e "const s=require('./package.json').scripts||{}; process.exit(!('test' in s));"; then
-              pnpm run test
-            elif node -e "const s=require('./package.json').scripts||{}; process.exit(!('test:e2e' in s));"; then
-              pnpm run test:e2e
-            else
-              echo "No test scripts found, skipping"
-            fi
+          if node -e "const s=require('./package.json').scripts||{}; process.exit('test' in s);"; then
+            pnpm run test
+          elif node -e "const s=require('./package.json').scripts||{}; process.exit('test:e2e' in s);"; then
+            pnpm run test:e2e
           else
             echo "No test scripts found, skipping"
           fi
